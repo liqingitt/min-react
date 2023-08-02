@@ -1,15 +1,17 @@
+import { ReactElementType } from 'shared/ReactTypes';
 import { FiberNode } from './filter';
 import { UpdateQueue, processUpdateQueue } from './updateQueue';
 import { HostComponent, HostRoot, HostText } from './workTags';
+import { mountChildFibers, reconcilerChildFibers } from './childFiber';
 
 export const beginWork = (wip: FiberNode) => {
 	switch (wip.tag) {
 		case HostRoot:
 			return updateHostRoot(wip);
 		case HostComponent:
-			break;
+			return updateHostComponent(wip);
 		case HostText:
-			break;
+			return null;
 		default:
 			if (__DEV__) {
 				console.warn('beginWork为实现的类型');
@@ -24,6 +26,30 @@ function updateHostRoot(wip: FiberNode) {
 	const updateQueue = wip.updateQueue as UpdateQueue<Element>;
 	const pending = updateQueue.shared.pending;
 	updateQueue.shared.pending = null;
+	// hostRootFiber 的 memoizedState 一般为 App根组件
+	const { memoizedState } = processUpdateQueue(baseState, pending);
+	wip.memoizedState = memoizedState;
+	const nextChildren = wip.memoizedState;
 
-	processUpdateQueue(baseState, pending);
+	// 生成子fiber节点
+	reconcilerChildren(wip, nextChildren);
+	return wip.child;
+}
+
+function updateHostComponent(wip: FiberNode) {
+	const nextProps = wip.pendingProps;
+	const nextChildren = nextProps.children;
+	reconcilerChildren(wip, nextChildren);
+	return wip.child;
+}
+
+function reconcilerChildren(wip: FiberNode, children?: ReactElementType) {
+	// wip 对应的currentFiber，用于判断处于children处于mount还是update，与取出children 对应的旧fiber与新的children ReactElement对比，生成新的fiber节点
+	const current = wip.alternate;
+	if (current !== null) {
+		wip.child = reconcilerChildFibers(wip, current.child, children);
+	} else {
+		wip.child = mountChildFibers(wip, null, children);
+	}
+	// reconcilerChildrenFibers(wip,current?.child,children)
 }

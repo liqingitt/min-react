@@ -9,6 +9,7 @@ export interface ReactElementType {
 	type: ElementType;
 	key: Key;
 	ref: Ref;
+	props: Props;
 	__mark: string;
 }
 
