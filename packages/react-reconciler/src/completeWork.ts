@@ -1,4 +1,2 @@
-
-export const completeWork = () => {
-    
-}
+// eslint-disable-next-line @typescript-eslint/no-empty-function
+export const completeWork = () => {};
