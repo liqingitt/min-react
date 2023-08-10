@@ -4,3 +4,5 @@ export const Update = 0b0000010;
 export const ChildDeletion = 0b0000100;
 
 export type Flags = number;
+
+export const MutationMask = Placement | Update | ChildDeletion;

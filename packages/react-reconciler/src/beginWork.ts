@@ -26,7 +26,7 @@ function updateHostRoot(wip: FiberNode) {
 	const updateQueue = wip.updateQueue as UpdateQueue<Element>;
 	const pending = updateQueue.shared.pending;
 	updateQueue.shared.pending = null;
-	// hostRootFiber 的 memoizedState 一般为 App根组件
+	// hostRootFiber 的 memoizedState 一般为	 App根组件
 	const { memoizedState } = processUpdateQueue(baseState, pending);
 	wip.memoizedState = memoizedState;
 	const nextChildren = wip.memoizedState;

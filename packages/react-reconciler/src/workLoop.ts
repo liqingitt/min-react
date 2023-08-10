@@ -1,5 +1,7 @@
 import { beginWork } from './beginWork';
+import { commitMutationsEffects } from './commitWork';
 import { completeWork } from './completeWork';
+import { MutationMask, NoFlags } from './filberFlags';
 import { FiberNode, FiberRootNode, createWorkInProgress } from './filter';
 import { HostRoot } from './workTags';
 
@@ -46,6 +48,37 @@ function renderRoot(root: FiberRootNode) {
 			workInprogress = null;
 		}
 	} while (true);
+
+	const finishedWork = root.current.alternate;
+	root.finishedWork = finishedWork;
+
+	commitRoot(root);
+}
+
+function commitRoot(root: FiberRootNode) {
+	const finishedWork = root.finishedWork;
+
+	if (finishedWork === null) {
+		return;
+	}
+	root.finishedWork = null;
+
+	// 判断是否存在3个子阶段需要执行的操作
+	// root flags root subtreeFlag
+	const subtreeHasEffect =
+		(finishedWork.subtreeFlags & MutationMask) !== NoFlags;
+	const rootFlags = (finishedWork.flags & MutationMask) !== NoFlags;
+
+	if (subtreeHasEffect || rootFlags) {
+		// beforeMutation
+		// mutation Placement
+		// layout
+
+		commitMutationsEffects(finishedWork);
+		root.current = finishedWork;
+	} else {
+		root.current = finishedWork;
+	}
 }
 
 function workLoop() {
