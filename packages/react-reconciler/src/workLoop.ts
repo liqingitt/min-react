@@ -61,6 +61,10 @@ function commitRoot(root: FiberRootNode) {
 	if (finishedWork === null) {
 		return;
 	}
+
+	if (__DEV__) {
+		console.warn('commit阶段开始');
+	}
 	root.finishedWork = null;
 
 	// 判断是否存在3个子阶段需要执行的操作
