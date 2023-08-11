@@ -75,10 +75,12 @@ function commitRoot(root: FiberRootNode) {
 
 	if (subtreeHasEffect || rootFlags) {
 		// beforeMutation
+
 		// mutation Placement
+		commitMutationsEffects(finishedWork);
+
 		// layout
 
-		commitMutationsEffects(finishedWork);
 		root.current = finishedWork;
 	} else {
 		root.current = finishedWork;
