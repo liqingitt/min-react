@@ -86,7 +86,7 @@ function appendPlacementNodeIntoContainer(
 ) {
 	// 传进来的finishedWork不一定是 hostComponent 类型,所以递归向下查找
 	if (finishedWork.tag === HostComponent || finishedWork.tag === HostText) {
-		appendChildToContainer(finishedWork.stateNode, hostParent);
+		appendChildToContainer(hostParent, finishedWork.stateNode);
 		return;
 	}
 

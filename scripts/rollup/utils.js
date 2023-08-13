@@ -5,7 +5,9 @@ import ts from 'rollup-plugin-typescript2';
 import cjs from '@rollup/plugin-commonjs';
 import replace from '@rollup/plugin-replace';
 
+// eslint-disable-next-line no-undef
 const pkgPath = path.resolve(__dirname, '../../packages');
+// eslint-disable-next-line no-undef
 const distPath = path.resolve(__dirname, '../../dist/node_modules');
 
 export function resolvePkgPath(pkgName, isDist) {
@@ -25,7 +27,8 @@ export function getPackageJson(pkgName) {
 
 export function getBaseRollupPlugins({
 	alias = {
-		__DEV__:true
+		__DEV__: true,
+		preventAssignment: true
 	},
 	typescript = {}
 } = {}) {

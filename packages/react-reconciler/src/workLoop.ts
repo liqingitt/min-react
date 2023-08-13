@@ -42,6 +42,8 @@ function renderRoot(root: FiberRootNode) {
 			workLoop();
 			break;
 		} catch (error) {
+			console.log(error);
+
 			if (__DEV__) {
 				console.warn('workLoop发生错误');
 			}
@@ -114,5 +116,6 @@ function completeUnitOfWork(fiber: FiberNode) {
 			return;
 		}
 		node = node.return;
+		workInprogress = node;
 	} while (node !== null);
 }

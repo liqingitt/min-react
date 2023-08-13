@@ -5,7 +5,12 @@ import {
 	createTestInstance
 } from 'hostConfig';
 import { FiberNode } from './filter';
-import { HostComponent, HostRoot, HostText } from './workTags';
+import {
+	FunctionComponent,
+	HostComponent,
+	HostRoot,
+	HostText
+} from './workTags';
 import { NoFlags } from './filberFlags';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-function
@@ -39,6 +44,9 @@ export const completeWork = (wip: FiberNode) => {
 			bubbleProperties(wip);
 			return null;
 		case HostRoot:
+			bubbleProperties(wip);
+			return null;
+		case FunctionComponent:
 			bubbleProperties(wip);
 			return null;
 		default:
