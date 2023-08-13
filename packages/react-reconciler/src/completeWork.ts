@@ -1,4 +1,5 @@
 import {
+	Instance,
 	appendInitialChild,
 	createInstance,
 	createTestInstance
@@ -48,11 +49,11 @@ export const completeWork = (wip: FiberNode) => {
 	}
 };
 
-function appendAllChildren(parent: FiberNode, wip: FiberNode) {
+function appendAllChildren(parent: Instance, wip: FiberNode) {
 	let node = wip.child;
 	while (node !== null) {
 		if (node.tag === HostComponent || node.tag === HostText) {
-			appendInitialChild();
+			appendInitialChild(parent, node.stateNode);
 		} else if (node.child !== null) {
 			node.child.return = node;
 			node = node.child;

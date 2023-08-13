@@ -1,7 +1,7 @@
 import { getBaseRollupPlugins, getPackageJson, resolvePkgPath } from './utils';
 import generatePackageJson from 'rollup-plugin-generate-package-json';
 const { name, module } = getPackageJson('react-dom');
-
+import alias from '@rollup/plugin-alias'
 const pkgPath = resolvePkgPath(name);
 
 const pkgDistPath = resolvePkgPath(name, true);
@@ -22,6 +22,11 @@ export default [
 			}
 		],
 		plugins: [
+			alias({
+				entries:{
+					"hostConfig":`${pkgPath}/src/hostConfig.ts`
+				}
+			}),
 			...getBaseRollupPlugins(),
 			generatePackageJson({
 				input: pkgPath,
@@ -30,26 +35,12 @@ export default [
 					name,
 					description,
 					version,
+					peerDependencies:{
+						"react": version,
+					},
 					main: 'index.js'
 				})
 			})
 		]
 	},
-	{
-		input: `${pkgPath}/src/jsx.ts`,
-		output: [
-			// jsx/runtime
-			{
-				file: `${pkgDistPath}/jsx-runtime.js`,
-				name: 'jsx-runtime',
-				format: 'umd'
-			},
-			{
-				file: `${pkgDistPath}/jsx-dev-runtime.js`,
-				name: 'jsx-dev-runtime',
-				format: 'umd'
-			}
-		],
-		plugins: getBaseRollupPlugins()
-	}
 ];
