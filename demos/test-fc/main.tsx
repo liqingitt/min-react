@@ -1,8 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import ReactDOM from 'react-dom/client';
 
 function Child() {
-	return <span>你好</span>;
+	const [num, setNumber] = useState(100);
+	window.setNumber = setNumber;
+	return <span>{num}</span>;
 }
 
 function App() {
