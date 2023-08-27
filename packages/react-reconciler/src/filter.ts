@@ -1,6 +1,6 @@
 import { Key, Props, ReactElementType, Ref } from 'shared/ReactTypes';
 import { FunctionComponent, HostComponent, WorkTag } from './workTags';
-import { Flags, NoFlags } from './filberFlags';
+import { Flags, NoFlags } from './fiberFlags';
 import { Container } from 'hostConfig';
 export class FiberNode {
 	type: any;
@@ -20,6 +20,7 @@ export class FiberNode {
 	alternate: FiberNode | null;
 	flags: Flags;
 	subtreeFlags: Flags;
+	deletions: FiberNode[] | null;
 
 	updateQueue: unknown;
 	constructor(tag: WorkTag, pendingProps: Props, key: Key) {
@@ -46,6 +47,7 @@ export class FiberNode {
 		// 幅作用
 		this.flags = NoFlags;
 		this.subtreeFlags = NoFlags;
+		this.deletions = null;
 	}
 }
 
@@ -85,6 +87,7 @@ export const createWorkInProgress = (
 		wip.pendingProps = pendingProps;
 		wip.flags = NoFlags;
 		wip.subtreeFlags = NoFlags;
+		wip.deletions = null;
 	}
 	wip.type = current.type;
 	wip.updateQueue = current.updateQueue;

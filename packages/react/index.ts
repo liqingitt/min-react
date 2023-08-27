@@ -2,7 +2,7 @@ import currentDispatcher, {
 	Dispatcher,
 	resolveDispatcher
 } from './src/currentDispatcher';
-import { jsx } from './src/jsx';
+import { jsxDEV } from './src/jsx';
 
 export const useState: Dispatcher['useState'] = (initialState: any) => {
 	const dispatcher = resolveDispatcher();
@@ -14,7 +14,11 @@ export const shared_data = {
 	currentDispatcher
 };
 
+export const version = '0.0.0';
+
+export const createElement = jsxDEV;
+
 export default {
 	version: '0.0.0',
-	createElement: jsx
+	createElement: jsxDEV
 };

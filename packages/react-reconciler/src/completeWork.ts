@@ -11,7 +11,11 @@ import {
 	HostRoot,
 	HostText
 } from './workTags';
-import { NoFlags } from './filberFlags';
+import { NoFlags, Update } from './fiberFlags';
+
+function markUpdate(fiber: FiberNode) {
+	fiber.flags |= Update;
+}
 
 // eslint-disable-next-line @typescript-eslint/no-empty-function
 export const completeWork = (wip: FiberNode) => {
@@ -33,6 +37,11 @@ export const completeWork = (wip: FiberNode) => {
 			return null;
 		case HostText:
 			if (current !== null && wip.stateNode) {
+				const oldText = current.memoizedProps.content;
+				const newText = newProps.content;
+				if (oldText !== newText) {
+					markUpdate(wip);
+				}
 				// update
 			} else {
 				// mount

@@ -1,7 +1,7 @@
 import { beginWork } from './beginWork';
 import { commitMutationsEffects } from './commitWork';
 import { completeWork } from './completeWork';
-import { MutationMask, NoFlags } from './filberFlags';
+import { MutationMask, NoFlags } from './fiberFlags';
 import { FiberNode, FiberRootNode, createWorkInProgress } from './filter';
 import { HostRoot } from './workTags';
 
