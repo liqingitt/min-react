@@ -6,9 +6,13 @@ function Child() {
 }
 
 function App() {
-	const [num, setNumber] = useState(100);
-	window.setNumber = setNumber;
-	return <div>{num === 3 ? <Child /> : <div>{num}</div>}</div>;
+	const [num, setNumber] = useState(0);
+
+	return (
+		<div onClick={() => setNumber(num + 1)}>
+			{num % 2 === 0 ? <Child /> : <div>{num}</div>}
+		</div>
+	);
 }
 
 ReactDOM.createRoot(document.getElementById('root')!).render(<App />);
