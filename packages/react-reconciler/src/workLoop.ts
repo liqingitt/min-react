@@ -63,7 +63,6 @@ function commitRoot(root: FiberRootNode) {
 	if (finishedWork === null) {
 		return;
 	}
-
 	if (__DEV__) {
 		console.warn('commit阶段开始');
 	}

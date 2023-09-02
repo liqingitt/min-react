@@ -1,7 +1,9 @@
 import {
 	Container,
+	Instance,
 	appendChildToContainer,
 	commitUpdate,
+	insertChildToContainer,
 	removeChid
 } from 'hostConfig';
 import {
@@ -38,7 +40,7 @@ export const commitMutationsEffects = (finishedWork: FiberNode) => {
 				const sibling: FiberNode | null = nextEffect.sibling;
 
 				if (sibling !== null) {
-					nextEffect.sibling;
+					nextEffect = sibling;
 					break up;
 				}
 				nextEffect = nextEffect.return;
@@ -144,10 +146,62 @@ const commitPlacement = (finishedWork: FiberNode) => {
 	}
 
 	const hostParent = getHostParent(finishedWork);
+	// host sibling
+	/**
+	 * 解释为什么要获取兄弟dom元素：
+	 * placement有两个含义，新增或者移动
+	 * 在child list 都为mount时（一般为首屏），获取不到兄弟节点，因为所有的兄弟节点都为不稳定节点
+	 * 在update时，可能会中间插入 或 移动fiber节点，fiber节点在diff时位置已经交换，但真实dom此时的位置还未交换，
+	 * 所以通过已经重新排序的fiber节点，找到其对应的真实dom节点，然后通过parent.insertBefore，即可实现真实dom的位置交换
+	 */
+	const sibling = getHostSibling(finishedWork);
 	if (hostParent !== null) {
-		appendPlacementNodeIntoContainer(finishedWork, hostParent);
+		insertOrAppendPlacementNodeIntoContainer(finishedWork, hostParent, sibling);
 	}
 };
+
+function getHostSibling(fiber: FiberNode) {
+	let node: FiberNode = fiber;
+	findSibling: while (true) {
+		while (node.sibling === null) {
+			// 当前节点没有兄弟节点，向上遍历
+			const parent = node.return;
+
+			if (
+				parent === null ||
+				parent.tag === HostComponent ||
+				parent.tag === HostRoot
+			) {
+				// 父节点已是HostRootFiber，或HostComponent 依旧未找到兄弟节点，结束查找
+				return null;
+			}
+			node = parent;
+		}
+
+		node.sibling.return = node.return;
+		node = node.sibling;
+
+		while (node.tag !== HostText && node.tag !== HostComponent) {
+			// 兄弟节点不是hostText 与 HostComponent,向下遍历
+			if ((node.flags & Placement) !== NoFlags) {
+				// 该兄弟节点是新增/移动的节点，则不能使用，继续遍历fiber 的下一个兄弟节点
+				continue findSibling;
+			}
+
+			if (node.child === null) {
+				// 没有子节点了，继续续遍历fiber的下一个兄弟节点
+				continue findSibling;
+			} else {
+				node.child.return = node;
+				node = node.child;
+			}
+		}
+
+		if ((node.flags & Placement) === NoFlags) {
+			return node.stateNode;
+		}
+	}
+}
 
 function getHostParent(fiber: FiberNode): Container | null {
 	let parent = fiber.return;
@@ -173,24 +227,41 @@ function getHostParent(fiber: FiberNode): Container | null {
 	return null;
 }
 
-function appendPlacementNodeIntoContainer(
+function insertOrAppendPlacementNodeIntoContainer(
 	finishedWork: FiberNode,
-	hostParent: Container
+	hostParent: Container,
+	siblingStateNode?: Instance
 ) {
 	// 传进来的finishedWork不一定是 hostComponent 类型,所以递归向下查找
 	if (finishedWork.tag === HostComponent || finishedWork.tag === HostText) {
-		appendChildToContainer(hostParent, finishedWork.stateNode);
+		if (siblingStateNode) {
+			insertChildToContainer(
+				finishedWork.stateNode,
+				hostParent,
+				siblingStateNode
+			);
+		} else {
+			appendChildToContainer(hostParent, finishedWork.stateNode);
+		}
 		return;
 	}
 
 	const child = finishedWork.child;
 
 	if (child !== null) {
-		appendPlacementNodeIntoContainer(child, hostParent);
+		insertOrAppendPlacementNodeIntoContainer(
+			child,
+			hostParent,
+			siblingStateNode
+		);
 		let sibling = child.sibling;
 
 		while (sibling !== null) {
-			appendPlacementNodeIntoContainer(sibling, hostParent);
+			insertOrAppendPlacementNodeIntoContainer(
+				sibling,
+				hostParent,
+				siblingStateNode
+			);
 			sibling = sibling.sibling;
 		}
 	}
