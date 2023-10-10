@@ -10,6 +10,7 @@ import {
 } from './updateQueue';
 import { Action } from 'shared/ReactTypes';
 import { scheduleUpdateOnFiber } from './workLoop';
+import { Lane, NoLane, requestUpdateLanes } from './fiberLanes';
 
 // 当前的fiber节点
 let currentlyRenderingFiber: FiberNode | null = null;
@@ -18,6 +19,7 @@ let workInprogressHook: Hook | null = null;
 // 上一个工作的hook
 let prevHook: Hook | null = null;
 
+let renderLane: Lane = NoLane;
 const { currentDispatcher } = internals;
 
 interface Hook {
@@ -26,12 +28,13 @@ interface Hook {
 	next: Hook | null;
 }
 
-export function renderWithHooks(wip: FiberNode) {
+export function renderWithHooks(wip: FiberNode, lane: Lane) {
 	// 赋值操作
 	currentlyRenderingFiber = wip;
 	// 重置
 	wip.memoizedState = null;
 
+	renderLane = lane;
 	const current = wip.alternate;
 
 	if (current !== null) {
@@ -50,6 +53,7 @@ export function renderWithHooks(wip: FiberNode) {
 	currentlyRenderingFiber = null;
 	workInprogressHook = null;
 	prevHook = null;
+	renderLane = NoLane;
 	return children;
 }
 
@@ -74,7 +78,8 @@ function updateState<State>(): [State, Dispatch<State>] {
 	if (pending !== null) {
 		const { memoizedState } = processUpdateQueue(
 			hook.hookMemoizedState,
-			pending
+			pending,
+			renderLane
 		);
 		hook.hookMemoizedState = memoizedState;
 	}
@@ -111,12 +116,14 @@ function dispatchSetState<State>(
 	updateQueue: UpdateQueue<State>,
 	action: Action<State>
 ) {
+	// 获取优先级
+	const lane = requestUpdateLanes();
 	// 将setState(xxx)时的xxx，包装成一个update 添加进 hook的updateQueue 当中
-	const update = createUpdate(action);
+	const update = createUpdate(action, lane);
 	enqueueUpdate(updateQueue, update);
 
 	// 调度更新
-	scheduleUpdateOnFiber(fiber);
+	scheduleUpdateOnFiber(fiber, lane);
 }
 
 // 获取 mount 时 当前fiber对应的hook数据

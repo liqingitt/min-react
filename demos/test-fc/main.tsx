@@ -7,34 +7,19 @@ function Child() {
 
 function App() {
 	const [num, setNumber] = useState(0);
+	console.log('render');
 
-	const arr =
-		num % 2 === 0
-			? [<Child key={'1'} />, <li key={'2'}>2</li>, <li key={'3'}>3</li>]
-			: [<li key={'3'}>3</li>, <li key={'2'}>2</li>, <li key={'1'}>1</li>];
-
-	return (
-		<div
-			onClick={(e) => {
-				console.log(e);
-
-				setNumber(num + 1);
-			}}
-		>
-			<>{arr}</>
-		</div>
-	);
 	return (
 		<ul
 			onClick={(e) => {
 				console.log(e);
 
-				setNumber(num + 1);
+				setNumber((num) => num + 1);
+				setNumber((num) => num + 1);
+				setNumber((num) => num + 1);
 			}}
 		>
-			<li>4</li>
-			<li>5</li>
-			<>{arr}</>
+			{num}
 		</ul>
 	);
 }
