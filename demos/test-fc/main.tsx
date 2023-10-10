@@ -10,7 +10,7 @@ function App() {
 	console.log('render');
 
 	return (
-		<ul
+		<span
 			onClick={(e) => {
 				console.log(e);
 
@@ -20,7 +20,7 @@ function App() {
 			}}
 		>
 			{num}
-		</ul>
+		</span>
 	);
 }
 
